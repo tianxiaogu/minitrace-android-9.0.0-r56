@@ -570,6 +570,17 @@ class DexFile {
 
   virtual uint32_t GetCodeItemSize(const DexFile::CodeItem& disk_code_item) const = 0;
 
+  uint8_t* GetCoverageData(const uint32_t code_off) const {
+    if (code_off == 0) {
+      return nullptr;  // native or abstract method
+    } else {
+      uint8_t* addr = coverage_data_begin_ + code_off;
+      return addr;
+    }
+  }
+
+  void InitCoverageData();
+
   // Returns the declaring class descriptor string of a field id.
   const char* GetFieldDeclaringClassDescriptor(const FieldId& field_id) const {
     const DexFile::TypeId& type_id = GetTypeId(field_id.class_idx_);
@@ -1043,6 +1054,9 @@ class DexFile {
 
   // The size of the underlying memory allocation in bytes.
   const size_t size_;
+
+  // Coverage data
+  uint8_t* coverage_data_begin_;
 
   // The base address of the data section (same as Begin() for standard dex).
   const uint8_t* const data_begin_;

@@ -160,6 +160,7 @@
 #include "thread_list.h"
 #include "ti/agent.h"
 #include "trace.h"
+#include "mini_trace.h"
 #include "transaction.h"
 #include "vdex_file.h"
 #include "verifier/method_verifier.h"
@@ -354,6 +355,7 @@ Runtime::~Runtime() {
   }
 
   Trace::Shutdown();
+  MiniTrace::Shutdown();
 
   // Report death. Clients me require a working thread, still, so do it before GC completes and
   // all non-daemon threads are done.
@@ -461,6 +463,7 @@ struct AbortState {
     // it improves the chance of relevant data surviving in the Android logs.
 
     DumpAllThreads(os, self);
+    MiniTrace::DumpCoverageData();
 
     if (self == nullptr) {
       os << "(Aborting thread was not attached to runtime!)\n";
@@ -847,6 +850,11 @@ bool Runtime::Start() {
                  trace_config_->trace_output_mode,
                  trace_config_->trace_mode,
                  0);
+  }
+
+  {
+    ScopedThreadStateChange tsc(self, kWaitingForMethodTracingStart);
+    MiniTrace::Start();
   }
 
   // In case we have a profile path passed as a command line argument,
@@ -1332,6 +1340,7 @@ bool Runtime::Init(RuntimeArgumentMap&& runtime_options_in) {
   }
   callbacks_->AddThreadLifecycleCallback(Dbg::GetThreadLifecycleCallback());
   callbacks_->AddClassLoadCallback(Dbg::GetClassLoadCallback());
+  callbacks_->AddClassLoadCallback(MiniTrace::GetClassLoadCallback());
 
   jit_options_.reset(jit::JitOptions::CreateFromRuntimeArguments(runtime_options));
   if (IsAotCompiler()) {
@@ -1909,6 +1918,7 @@ void Runtime::BlockSignals() {
   signals.Add(SIGQUIT);
   // SIGUSR1 is used to initiate a GC.
   signals.Add(SIGUSR1);
+  signals.Add(SIGUSR2);
   signals.Block();
 }
 

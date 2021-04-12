@@ -59,6 +59,7 @@ class SignalCatcher {
   bool OpenStackTraceFile(android::base::unique_fd* tombstone_fd,
                           android::base::unique_fd* output_fd);
   void HandleSigUsr1();
+  void HandleSigUsr2();
   void Output(const std::string& s);
   void SetHaltFlag(bool new_value) REQUIRES(!lock_);
   bool ShouldHalt() REQUIRES(!lock_);

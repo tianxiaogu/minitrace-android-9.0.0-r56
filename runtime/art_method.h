@@ -131,6 +131,11 @@ class ArtMethod FINAL {
   // Approximate what kind of method call would be used for this method.
   InvokeType GetInvokeType() REQUIRES_SHARED(Locks::mutator_lock_);
 
+  // MiniTrace
+  ALWAYS_INLINE bool IsMiniTraceable() REQUIRES_SHARED(Locks::mutator_lock_);
+  ALWAYS_INLINE void VisitPc(uint32_t dex_pc) REQUIRES_SHARED(Locks::mutator_lock_);
+  uint8_t* GetCoverageData() REQUIRES_SHARED(Locks::mutator_lock_);
+
   // Returns true if the method is declared public.
   bool IsPublic() {
     return (GetAccessFlags() & kAccPublic) != 0;

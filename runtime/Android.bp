@@ -202,6 +202,7 @@ cc_defaults {
         "thread_pool.cc",
         "ti/agent.cc",
         "trace.cc",
+        "mini_trace.cc",
         "transaction.cc",
         "type_lookup_table.cc",
         "vdex_file.cc",

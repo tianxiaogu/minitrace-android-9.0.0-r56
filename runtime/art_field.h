@@ -76,6 +76,8 @@ class ArtField FINAL {
     return (GetAccessFlags() & kAccFinal) != 0;
   }
 
+  ALWAYS_INLINE bool IsMiniTraceable() REQUIRES_SHARED(Locks::mutator_lock_);
+
   uint32_t GetDexFieldIndex() {
     return field_dex_idx_;
   }

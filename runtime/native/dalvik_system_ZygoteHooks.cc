@@ -42,6 +42,7 @@
 #include "thread-current-inl.h"
 #include "thread_list.h"
 #include "trace.h"
+#include "mini_trace.h"
 
 #if defined(__linux__)
 #include <sys/prctl.h>
@@ -358,6 +359,8 @@ static void ZygoteHooks_nativePostForkChild(JNIEnv* env,
       }
     }
   }
+
+  MiniTrace::Start();
 
   bool do_hidden_api_checks = api_enforcement_policy != hiddenapi::EnforcementPolicy::kNoChecks;
   DCHECK(!(is_system_server && do_hidden_api_checks))

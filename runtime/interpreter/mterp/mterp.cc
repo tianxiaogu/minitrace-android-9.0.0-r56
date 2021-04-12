@@ -20,6 +20,7 @@
 #include "mterp.h"
 
 #include "base/quasi_atomic.h"
+#include "mini_trace.h"
 #include "debugger.h"
 #include "entrypoints/entrypoint_utils-inl.h"
 #include "interpreter/interpreter_common.h"
@@ -151,6 +152,7 @@ extern "C" size_t MterpShouldSwitchInterpreters()
   const instrumentation::Instrumentation* const instrumentation = runtime->GetInstrumentation();
   return instrumentation->NonJitProfilingActive() ||
       Dbg::IsDebuggerActive() ||
+      MiniTrace::IsMiniTraceActive() ||
       // An async exception has been thrown. We need to go to the switch interpreter. MTerp doesn't
       // know how to deal with these so we could end up never dealing with it if we are in an
       // infinite loop. Since this can be called in a tight loop and getting the current thread

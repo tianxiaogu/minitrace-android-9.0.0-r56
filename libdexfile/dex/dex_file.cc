@@ -104,6 +104,7 @@ DexFile::DexFile(const uint8_t* base,
                  bool is_compact_dex)
     : begin_(base),
       size_(size),
+      coverage_data_begin_(nullptr),
       data_begin_(data_begin),
       data_size_(data_size),
       location_(location),
@@ -144,7 +145,24 @@ bool DexFile::Init(std::string* error_msg) {
   if (!CheckMagicAndVersion(error_msg)) {
     return false;
   }
+  InitCoverageData();
   return true;
+}
+
+void DexFile::InitCoverageData() {
+  if (coverage_data_begin_ != nullptr) {
+    return;
+  }
+  if (data_size_ <= 0) {
+    return;
+  }
+  const char* prefix = "/system/framework/";
+  const char* location = GetLocation().c_str();
+  if (strncmp(location, prefix, strlen(prefix)) == 0) {
+    return;
+  }
+  coverage_data_begin_ = new uint8_t[data_size_];
+  memset(coverage_data_begin_, 0, data_size_);
 }
 
 bool DexFile::CheckMagicAndVersion(std::string* error_msg) const {

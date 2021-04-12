@@ -249,6 +249,25 @@ inline const DexFile::CodeItem* ArtMethod::GetCodeItem() {
   return GetDexFile()->GetCodeItem(GetCodeItemOffset());
 }
 
+inline bool ArtMethod::IsMiniTraceable() {
+  return GetDeclaringClass()->IsMiniTraceable();
+}
+
+
+inline void ArtMethod::VisitPc(uint32_t dex_pc) {
+  uint8_t* coverage_data = GetCoverageData();
+  if (coverage_data == nullptr) {
+    return;
+  }
+  coverage_data[dex_pc] = 1;
+  uint8_t* addr = coverage_data + dex_pc;
+  *addr = 1;
+}
+
+inline uint8_t* ArtMethod::GetCoverageData() {
+  return GetDexFile()->GetCoverageData(GetCodeItemOffset());
+}
+
 inline bool ArtMethod::IsResolvedTypeIdx(dex::TypeIndex type_idx) {
   DCHECK(!IsProxyMethod());
   return LookupResolvedClassFromTypeIndex(type_idx) != nullptr;

@@ -296,6 +296,10 @@ inline Primitive::Type ArtField::GetTypeAsPrimitiveType()
   return Primitive::GetType(GetTypeDescriptor()[0]);
 }
 
+inline bool ArtField::IsMiniTraceable() REQUIRES_SHARED(Locks::mutator_lock_) {
+    return GetDeclaringClass()->IsMiniTraceable();
+}
+
 inline bool ArtField::IsPrimitiveType() REQUIRES_SHARED(Locks::mutator_lock_) {
   return GetTypeAsPrimitiveType() != Primitive::kPrimNot;
 }

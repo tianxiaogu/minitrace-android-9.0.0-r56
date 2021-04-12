@@ -99,6 +99,9 @@ static constexpr uint32_t kAccMayBeUnusedBits =       0x40000000;
 // Set by the compiler driver when compiling boot classes with instrinsic methods.
 static constexpr uint32_t kAccIntrinsic  =            0x80000000;  // method (runtime)
 
+// A class, method or field is mini-traceable
+static constexpr uint32_t kAccIsMiniTraceable           = 0x10000000;
+
 // Special runtime-only flags.
 // Interface and all its super-interfaces with default methods have been recursively initialized.
 static constexpr uint32_t kAccRecursivelyInitialized    = 0x20000000;

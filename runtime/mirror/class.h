@@ -191,6 +191,18 @@ class MANAGED Class FINAL : public Object {
     return (GetAccessFlags() & kAccEnum) != 0;
   }
 
+  ALWAYS_INLINE bool IsMiniTraceable() REQUIRES_SHARED(Locks::mutator_lock_) {
+    return (GetAccessFlags() & kAccIsMiniTraceable) != 0;
+  }
+
+  void SetIsMiniTraceable() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    SetAccessFlags(GetAccessFlags() | kAccIsMiniTraceable);
+  }
+
+  void ClearIsMiniTraceable() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    SetAccessFlags(GetAccessFlags() & ~kAccIsMiniTraceable);
+  }
+
   // Returns true if the class is an interface.
   ALWAYS_INLINE bool IsInterface() REQUIRES_SHARED(Locks::mutator_lock_) {
     return (GetAccessFlags() & kAccInterface) != 0;

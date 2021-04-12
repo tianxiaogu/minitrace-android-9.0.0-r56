@@ -210,6 +210,7 @@ void ExecuteSwitchImplCpp(SwitchImplContext* ctx) {
   self->VerifyStack();
 
   uint32_t dex_pc = shadow_frame.GetDexPC();
+  const bool mini_trace = shadow_frame.GetMethod()->IsMiniTraceable();
   const auto* const instrumentation = Runtime::Current()->GetInstrumentation();
   const uint16_t* const insns = accessor.Insns();
   const Instruction* inst = Instruction::At(insns + dex_pc);
@@ -220,6 +221,7 @@ void ExecuteSwitchImplCpp(SwitchImplContext* ctx) {
     dex_pc = inst->GetDexPc(insns);
     shadow_frame.SetDexPC(dex_pc);
     TraceExecution(shadow_frame, inst, dex_pc);
+    if (UNLIKELY(mini_trace)) shadow_frame.GetMethod()->VisitPc(dex_pc);
     inst_data = inst->Fetch16(0);
     switch (inst->Opcode(inst_data)) {
       case Instruction::NOP:

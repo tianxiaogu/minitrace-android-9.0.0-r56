@@ -44,6 +44,7 @@
 #include "gc/heap.h"
 #include "jit/profile_saver.h"
 #include "runtime.h"
+#include "mini_trace.h"
 #include "scoped_thread_state_change-inl.h"
 #include "signal_set.h"
 #include "thread.h"
@@ -203,12 +204,27 @@ void SignalCatcher::HandleSigQuit() {
   }
   os << "----- end " << getpid() << " -----\n";
   Output(os.str());
+
+  LOG(INFO) << "SIGQUIT dumping coverage data begin";
+  MiniTrace::DumpCoverageData();
+  LOG(INFO) << "SIGQUIT dumping coverage data end";
+}
+
+
+void SignalCatcher::HandleSigUsr2() {
+  LOG(INFO) << "SIGUSR2 dumping coverage data begin";
+  MiniTrace::DumpCoverageData();
+  LOG(INFO) << "SIGUSR2 dumping coverage data end";
 }
 
 void SignalCatcher::HandleSigUsr1() {
   LOG(INFO) << "SIGUSR1 forcing GC (no HPROF) and profile save";
   Runtime::Current()->GetHeap()->CollectGarbage(/* clear_soft_references */ false);
   ProfileSaver::ForceProcessProfiles();
+
+  LOG(INFO) << "SIGUSR1 stopping MiniTrace";
+  MiniTrace::Stop();
+  LOG(INFO) << "SIGUSR1 MiniTrace stopped";
 }
 
 int SignalCatcher::WaitForSignal(Thread* self, SignalSet& signals) {
@@ -251,6 +267,7 @@ void* SignalCatcher::Run(void* arg) {
   SignalSet signals;
   signals.Add(SIGQUIT);
   signals.Add(SIGUSR1);
+  signals.Add(SIGUSR2);
 
   while (true) {
     int signal_number = signal_catcher->WaitForSignal(self, signals);
@@ -265,6 +282,9 @@ void* SignalCatcher::Run(void* arg) {
       break;
     case SIGUSR1:
       signal_catcher->HandleSigUsr1();
+      break;
+    case SIGUSR2:
+      signal_catcher->HandleSigUsr2();
       break;
     default:
       LOG(ERROR) << "Unexpected signal %d" << signal_number;
